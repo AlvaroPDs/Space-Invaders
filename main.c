@@ -9,41 +9,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+
+int main()
+{
+   //al_init();
+   //al_install_keyboard();
+
+   //ALLEGRO_TIMER* timer = al_create_timer(1.0/90);
+   //ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
+   //ALLEGRO_DISPLAY* disp = al_create_display(320,200);
+   //ALLEGRO_FONT* font = al_create_builtin_font()
 
 
- const float FPS = 90;
- const int SCREEN_W = 1024;
- const int SCREEN_H = 720;
+   //al_register_event_source (queuue, al_get_keyboard_event_source());
+   //al_register_event_source (queuue, al_get_display_event_source());
+   //al_register_event_source (queuue, al_get_timer_event_source());
 
- int main(int argc, char **argv)
- {
-    ALLEGRO_DISPLAY *display = NULL;
-    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-    //ALLEGRO_TIMER *timer = NULL;
+   //bool redraw = true;
+   //ALLEGRO_EVENT event;
 
-    if(!al_init())
-    {
-        fprintf(stderr, "failed to initialize allegro!\n");
-        return -1;
 
-    }
-    //timer = al_create_timer(1.0/FPS);
-    //if(!timer)
-    //{
-    //    printf(stderr,("failed to create timer!\n"))
-    //}
-    bool redraw = true;
 
-    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
-    display = al_create_display(SCREEN_W, SCREEN_H);
-    if(!display)
-    {
-        fprintf(stderr,"failed to create display!\n");
-        //al_destroy_timer(timer);
-        return -1;
-    }
-
-return 0;
+   return 0;
+}
 
  }
