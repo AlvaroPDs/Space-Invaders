@@ -34,8 +34,18 @@
 
 //const int REBATEDOR_ALTURA = 506;
 
+/// NAMING AND SETTING POSITION OF EACH OBJECT
+enum BLOCK_TYPE {
+ BT_SHIP,
+ BT_PROJECTILE,
+};
 
-
+typedef struct BLOCK {
+ float x,y;
+ float dx,dy;
+ int type;
+}BLOCK;
+/// ----------------------------------------------------------------------------------------------------------------------------------------
 int main(int argc, char **argv)
 
 {
@@ -344,6 +354,7 @@ int main(int argc, char **argv)
     memset(key, 0, sizeof(key));
    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
+   
     al_start_timer(timer);
 
     while(1)
@@ -354,7 +365,14 @@ int main(int argc, char **argv)
         ALLEGRO_EVENT event;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-
+    /// POSITION OF OBJECT
+      //  BLOCK obj[BT_N];
+      //  int i;
+      //  for(i = 0; i < BT_N; i++;)
+     //   {
+      //      BLOCK
+      //  }
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
     al_wait_for_event(queue, &event);
 
 
@@ -611,6 +629,7 @@ int main(int argc, char **argv)
 
             /// DRAW COMMANDS
             al_draw_filled_triangle(x - 75, y + 250, x - 25 , y + 275, x - 75, y + 300, al_map_rgb_f(0, 1, 0));
+            al_draw_filled_circle(35,250,5, al_map_rgb_f(0,1,0));
             al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f  Y: %.1f ", x, y);
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
