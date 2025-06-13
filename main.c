@@ -8,6 +8,7 @@
 
 /// Modifications added to the document are highlighted by line document comments
 /// Parts of the original design were highlighted by normal line comments
+/// Unused modified code is commented with a line comment and #
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,17 +35,17 @@
 
 //const int REBATEDOR_ALTURA = 506;
 
-/// NAMING AND SETTING POSITION OF EACH OBJECT
-enum BLOCK_TYPE {
- BT_SHIP,
- BT_PROJECTILE,
-};
+/// NAMING AND SETTING A VALUE FOR EACH OBJECT
+#define SHIP_W  40
+#define SHIP_H 20
+#define MAX_PROJECTILES 1
+/// ----------------------------------------------------------------------------------------------------------------------------------------
 
-typedef struct BLOCK {
+/// DEFINING X & Y
+typedef struct  {
  float x,y;
- float dx,dy;
- int type;
-}BLOCK;
+ bool active;
+}Projectile;
 /// ----------------------------------------------------------------------------------------------------------------------------------------
 int main(int argc, char **argv)
 
@@ -112,7 +113,22 @@ int main(int argc, char **argv)
 
     bool redraw = true;
 
+    /// BOOLEAN OF RUNNING SETUP
+    bool done = false;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
+    /// BOOLEAN SET OF ALLEGRO KEYCODES
+    bool key[ALLEGRO_KEY_MAX] = {false};
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// POSITION OF PLAYER'S SHIP
+    float ship_x = 640/2 - SHIP_W/2;
+    float ship_y = 480/2 - SHIP_H - 10;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// SET PROJECTILES
+    Projectile projectiles[MAX_PROJECTILES];
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
    // al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
 
@@ -338,23 +354,26 @@ int main(int argc, char **argv)
 
 
 
-    /// DEFINING POSITION OF THE PRIMITIVE
-    float x,y;
-     x = 100;
-     y = 100;
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
+   // # /// DEFINING POSITION OF THE PRIMITIVE
+   // #  float x,y;
+   // #  x = 100;
+   // #  y = 100;
+   //   /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// DEFINING KEY STATE OF WHILE NOT PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
-    bool done = false;
+   // # /// DEFINING KEY STATE WHILE NOT PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
 
-    #define KEY_SEEN     1
-    #define KEY_DOWN     2
+  //  #define KEY_SEEN     1
+   // #define KEY_DOWN    2
 
-    unsigned char key[ALLEGRO_KEY_MAX];
-    memset(key, 0, sizeof(key));
+  // #  unsigned char key[ALLEGRO_KEY_MAX];
+  // #  memset(key, 0, sizeof(key));
+ //  /// ----------------------------------------------------------------------------------------------------------------------------------------
+   /// FOR LOOP TO PROJECTILES SET AS 0
+   int i;
+   for ( i = 0; i < MAX_PROJECTILES; i++) {
+        projectiles[i].active = false;
+    }
    /// ----------------------------------------------------------------------------------------------------------------------------------------
-
-   
     al_start_timer(timer);
 
     while(1)
@@ -365,53 +384,77 @@ int main(int argc, char **argv)
         ALLEGRO_EVENT event;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// POSITION OF OBJECT
-      //  BLOCK obj[BT_N];
-      //  int i;
-      //  for(i = 0; i < BT_N; i++;)
-     //   {
-      //      BLOCK
-      //  }
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
     al_wait_for_event(queue, &event);
 
 
-   /// NEW MOVEMENT CODE FOR PRIMITIVES
+   /// NEW MOVEMENT CODE USED FOR PRIMITIVES
     switch(event.type)
     {
 
+    case ALLEGRO_EVENT_KEY_DOWN:
+            key[event.keyboard.keycode] = true;
+            break;
 
+    case ALLEGRO_EVENT_KEY_UP:
+            key[event.keyboard.keycode] = false;
+            break;
+
+    case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            done = true;
+            break;
 
     case ALLEGRO_EVENT_TIMER:
-      if(key[ALLEGRO_KEY_UP])
-          y-= 5;
-      if(key[ALLEGRO_KEY_DOWN])
-          y+= 5;
-      if(key[ALLEGRO_KEY_LEFT])
-          x-= 5;
-      if(key[ALLEGRO_KEY_RIGHT])
-          x+= 5;
+      if(key[ALLEGRO_KEY_UP] && ship_y> 0)
+          ship_y-= 8;
+      if(key[ALLEGRO_KEY_DOWN] && ship_y < 640 - SHIP_H)
+          ship_y+= 8;
+      if(key[ALLEGRO_KEY_LEFT] && ship_x > 0)
+          ship_x-= 8;
+      if(key[ALLEGRO_KEY_RIGHT] && ship_x < 480 - SHIP_W)
+          ship_x+= 8;
 
+      /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+      /// FIRE PROJECTILE
+      if(key[ALLEGRO_KEY_SPACE]) {
+      int i;
+      for( i = 0; i < MAX_PROJECTILES; i++) {
+        if (!projectiles[i].active) {
+                        projectiles[i].x = ship_x + SHIP_W / 2;
+                        projectiles[i].y = ship_y;
+                        projectiles[i].active = true;
+                        break;
+        }
+      }
+
+      }
+
+
+      /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+      /// MOVE PROJECTILES UP AND DELETE
+      for (i = 0; i < MAX_PROJECTILES; i++) {
+        if (projectiles[i].active) {
+           projectiles[i].y -= 10; // move up
+        if (projectiles[i].y < 0) {
+            projectiles[i].active = false;
+        }
+    }
+}
       if(key[ALLEGRO_KEY_ESCAPE])
           done = true;
 
-      int i;
-      for( i = 0; i < ALLEGRO_KEY_MAX; i++)
-                  key[i] &= ~KEY_SEEN;
+     // # int i;
+     // # for( i = 0; i < ALLEGRO_KEY_MAX; i++)
+      //            key[i] &= ~KEY_SEEN;
 
        redraw = true;
        break;
 
-        case ALLEGRO_EVENT_KEY_DOWN:
-            key[event.keyboard.keycode] = KEY_SEEN | KEY_DOWN;
-            break;
-        case ALLEGRO_EVENT_KEY_UP:
-            key[event.keyboard.keycode] &= ~KEY_DOWN;
-            break;
 
-        case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            done = true;
-            break;
+
+
+
 }
 
 
@@ -419,8 +462,6 @@ int main(int argc, char **argv)
 
     if(done)
         break;
-/// ----------------------------------------------------------------------------------------------------------------------------------------
-
       //  if(ev.type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 
       //  {
@@ -627,14 +668,29 @@ int main(int argc, char **argv)
 
             al_clear_to_color(al_map_rgb(0,0,0));
 
-            /// DRAW COMMANDS
-            al_draw_filled_triangle(x - 75, y + 250, x - 25 , y + 275, x - 75, y + 300, al_map_rgb_f(0, 1, 0));
-            al_draw_filled_circle(35,250,5, al_map_rgb_f(0,1,0));
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f  Y: %.1f ", x, y);
+            /// DRAW PLAYER'S SHIP
+            al_draw_filled_triangle(
+            ship_x, ship_y + SHIP_H,                         // left base
+            ship_x + SHIP_W, ship_y + SHIP_H,                // right base
+            ship_x + SHIP_W / 2, ship_y,                     // top (tip of triangle)
+            al_map_rgb(0, 255, 0));
+
+            // # al_draw_filled_circle(35,250,5, al_map_rgb_f(0,1,0));
+            // # al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f  Y: %.1f ", x, y);
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-           // /// VERTEX GRAPHIC
+            /// Draw projectiles
+            int i;
+            for ( i = 0; i < MAX_PROJECTILES; i++) {
+                if (projectiles[i].active) {
+                    al_draw_filled_rectangle(projectiles[i].x - 2, projectiles[i].y - 10,
+                                             projectiles[i].x + 2, projectiles[i].y,
+                                             al_map_rgb(255, 255, 0));
+                }
+            }
+            ///----------------------------------------------------------------------------------------------------------------------------------------
+           // # /// VERTEX GRAPHIC
             //ALLEGRO_VERTEX v[] = {
              //   { .x = 210, .y = 320, .z = 0, .color = al_map_rgb_f(1, 0, 0) },
               //  { .x = 330, .y = 320, .z = 0, .color = al_map_rgb_f(0, 1, 0) },
@@ -651,7 +707,7 @@ int main(int argc, char **argv)
 
           //  al_draw_bitmap(bola, bola_pos_x, bola_pos_y, 0);
 
-            ///// VERTEX CALL
+           // #  ///  VERTEX CALL
             //al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
           //  /// ----------------------------------------------------------------------------------------------------------------------------------------
             al_flip_display();
