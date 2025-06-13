@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Alvaro Palma Da Silva - All Rights Reserved
+/* Copyright (C) 2016 Marcelo Serrano Zanetti - All Rights Reserved
 
  * Licensed under the GNU GPL V3.0 license. All conditions apply.
 
@@ -6,11 +6,19 @@
 
  */
 
+/// Modifications added to the document are highlighted by line document comments
+/// Parts of the original design were highlighted by normal line comments
+
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <allegro5/allegro.h>
 
 #include <allegro5/allegro_image.h>
+
+#include <allegro5/allegro_primitives.h>
+
+#include <allegro5/allegro_font.h>
 
 
 
@@ -32,13 +40,17 @@ int main(int argc, char **argv)
 
 {
 
+
     ALLEGRO_DISPLAY *display = NULL;
 
     ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
     ALLEGRO_TIMER *timer = NULL;
 
+    /// ADD FONT ADDON LIB
 
+    ALLEGRO_FONT *font = NULL;
+   /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     if(!al_init())
 
@@ -49,6 +61,26 @@ int main(int argc, char **argv)
         return -1;
 
     }
+    /// CHECK PRIMITIVES
+    if(!al_init_primitives_addon()) {
+
+        fprintf(stderr,"failed to initialize primitives!\n");
+
+    return -1;
+    }
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+    /// CREATE AND CHECK FONT ADDON
+
+   font = al_create_builtin_font();
+
+   if(!font) {
+     fprintf(stderr,"failed to initialize fonts!\n");
+
+    return -1;
+   }
+   /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     timer = al_create_timer(1.0 / FPS);
 
@@ -62,9 +94,19 @@ int main(int argc, char **argv)
 
     }
 
+
+
     bool redraw = true;
 
+
+
     al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
+
+    /// SET ANTIANALISING
+    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+   /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     display = al_create_display(SCREEN_W, SCREEN_H);
 
@@ -146,7 +188,7 @@ int main(int argc, char **argv)
 
 
 
-    int click=0;
+  //  int click=0;
 
    // int savebvx;
 
@@ -280,35 +322,92 @@ int main(int argc, char **argv)
 
 
 
+
+    /// RENAMED "ALLEGRO_EVENT ev;" to "ALLEGRO_EVENT event; "
+    ALLEGRO_EVENT event;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// DEFINING A UPDATED LOCATION OF X,Y DRAW OBJECTS
+    float x, y;
+    x = 100;
+    y = 100;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// DEFINING KEY STATE OF BEING PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
+    bool done = false;
+
+    #define KEY_SEEN     1
+    #define KEY_DOWN     2
+
+    unsigned char key[ALLEGRO_KEY_MAX];
+    memset(key, 0, sizeof(key));
+   /// ----------------------------------------------------------------------------------------------------------------------------------------
+
     al_start_timer(timer);
-
-
 
     while(1)
 
     {
 
-        ALLEGRO_EVENT ev;
+        al_wait_for_event(event_queue, &event);
 
-        al_wait_for_event(event_queue, &ev);
+switch(event.type)
+{
+        redraw = true;
+        break;
+
+    case ALLEGRO_EVENT_TIMER:
+        if(event.keyboard.keycode == ALLEGRO_KEY_UP)
+            y--;
+        if(event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            y++;
+        if(event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            x--;
+        if(event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+            x++;
+
+        if(event.keyboard.keycode != ALLEGRO_KEY_ESCAPE)
+            break;
+
+        int i;
+        for( i = 0; i < ALLEGRO_KEY_MAX; i++)
+                    key[i] &= ~KEY_SEEN;
+
+                redraw = true;
+                break;
+
+            case ALLEGRO_EVENT_KEY_DOWN:
+                key[event.keyboard.keycode] = KEY_SEEN | KEY_DOWN;
+                break;
+            case ALLEGRO_EVENT_KEY_UP:
+                key[event.keyboard.keycode] &= ~KEY_DOWN;
+                break;
+
+            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+                done = true;
+                break;
+}
 
 
 
-        if(ev.type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+     if(done)
+            break;
 
-        {
+      //  if(ev.type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 
-            switch(ev.mouse.button)
+      //  {
 
-            {
+          //  switch(ev.mouse.button)
 
-            case 1:
+           // {
 
-                printf("x:%d y:%d\n",ev.mouse.x, ev.mouse.y);
+          //  case 1:
 
-                if(click==0)
+             //   printf("x:%d y:%d\n",ev.mouse.x, ev.mouse.y);
 
-                {
+             //   if(click==0)
+
+              //  {
 
 //                    savebvx=bola_vx;
 
@@ -318,31 +417,31 @@ int main(int argc, char **argv)
 
 //                    bola_vy=0;
 
-                    click=1;
+                  //  click=1;
 
-                }
+             //   }
 
-                else
+               // else
 
-                {
+              //  {
 
 //                    bola_vx=savebvx;
 
 //                    bola_vy=savebvy;
 
-                    click=0;
+                 //   click=0;
 
-                }
+              //  }
 
-                break;
+              //  break;
 
-            }
+           // }
 
-        }
+       // }
 
-        else if(ev.type == ALLEGRO_EVENT_TIMER)
+//        else if(ev.type == ALLEGRO_EVENT_TIMER)
 
-        {
+     //   {
 
 //            if(bola_pos_y < 0 || bola_pos_y > SCREEN_H - BOLA_TAMANHO)
 
@@ -396,97 +495,96 @@ int main(int argc, char **argv)
 
 //            rebatedorDireita_pos_y  += rebatedorDireita_vy;
 
-            redraw = true;
+        //    redraw = true;
 
-        }
+       // }
 
-        else if(ev.type == ALLEGRO_EVENT_KEY_DOWN)
+     //   else if(ev.type == ALLEGRO_EVENT_KEY_DOWN)
 
-        {
+     //   {
 
-            switch(ev.keyboard.keycode)
+    //        switch(ev.keyboard.keycode)
 
-            {
+      //      {
 
-            case ALLEGRO_KEY_UP:
+   //         case ALLEGRO_KEY_UP:
 
 //                rebatedorDireita_vy=-4;
 
-                break;
+      //          break;
 
 
 
-            case ALLEGRO_KEY_DOWN:
+       //     case ALLEGRO_KEY_DOWN:
 
 //                rebatedorDireita_vy=4;
 
-                break;
+         //       break;
 
 
-
-            case ALLEGRO_KEY_W:
+          //  case ALLEGRO_KEY_W:
 
 //                rebatedorEsquerda_vy=-4;
 
-                break;
+              //  break;
 
-            case ALLEGRO_KEY_S:
+           // case ALLEGRO_KEY_S:
 
 //                rebatedorEsquerda_vy=4;
 
-                break;
+            //    break;
 
 
 
 
 
-            case ALLEGRO_KEY_ESCAPE:
+           // case ALLEGRO_KEY_ESCAPE:
 
-                return 0;
+             //   return 0;
 
-                break;
+              //  break;
 
-            }
+          //  }
 
-        }
+       // }
 
-        else if(ev.type == ALLEGRO_EVENT_KEY_UP)
+     //   else if(ev.type == ALLEGRO_EVENT_KEY_UP)
 
-        {
+     //   {
 
-            switch(ev.keyboard.keycode)
+       //     switch(ev.keyboard.keycode)
 
-            {
+      //      {
 
-            case ALLEGRO_KEY_UP:
+         //   case ALLEGRO_KEY_UP:
 
-            case ALLEGRO_KEY_DOWN:
+         //   case ALLEGRO_KEY_DOWN:
 
 //                rebatedorDireita_vy=0;
 
-                break;
+            //    break;
 
 
 
-            case ALLEGRO_KEY_W:
+            //case ALLEGRO_KEY_W:
 
-            case ALLEGRO_KEY_S:
+            //case ALLEGRO_KEY_S:
 
 //                rebatedorEsquerda_vy=0;
 
-                break;
+             //   break;
 
-            }
+        //    }
 
-        }
+       // }
 
-        else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+       // else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 
-        {
+      //  {
 
-            break;
+        //    break;
 
-        }
+       // }
 
 
 
@@ -500,7 +598,20 @@ int main(int argc, char **argv)
 
             al_clear_to_color(al_map_rgb(0,0,0));
 
+            /// DRAW COMMANDS
+            al_draw_filled_triangle(35, 350, 85, 375, 35, 400, al_map_rgb_f(0, 1, 0));
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f Y: %.1f", x, y);
 
+            /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+            /// VERTEX GRAPHIC
+            //ALLEGRO_VERTEX v[] = {
+             //   { .x = 210, .y = 320, .z = 0, .color = al_map_rgb_f(1, 0, 0) },
+              //  { .x = 330, .y = 320, .z = 0, .color = al_map_rgb_f(0, 1, 0) },
+               // { .x = 210, .y = 420, .z = 0, .color = al_map_rgb_f(0, 0, 1) },
+                //{ .x = 330, .y = 420, .z = 0, .color = al_map_rgb_f(1, 1, 0) },
+            //};
+            /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 //            al_draw_bitmap(background, 0, 0, 0);
 
@@ -510,8 +621,9 @@ int main(int argc, char **argv)
 
           //  al_draw_bitmap(bola, bola_pos_x, bola_pos_y, 0);
 
-
-
+            /// VERTEX CALL
+            //al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
+            /// ----------------------------------------------------------------------------------------------------------------------------------------
             al_flip_display();
 
         }
@@ -526,6 +638,8 @@ int main(int argc, char **argv)
 
 //    al_destroy_bitmap(rebatedorDireita);
 
+    al_destroy_font(font);
+
     al_destroy_timer(timer);
 
     al_destroy_display(display);
@@ -537,4 +651,3 @@ int main(int argc, char **argv)
     return 0;
 
 }
-
