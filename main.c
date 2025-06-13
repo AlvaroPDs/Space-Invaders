@@ -43,11 +43,15 @@ int main(int argc, char **argv)
 
     ALLEGRO_DISPLAY *display = NULL;
 
+    /// RENAMED "event_queue" to "queue"
+
     ALLEGRO_EVENT_QUEUE *queue = NULL;
+
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     ALLEGRO_TIMER *timer = NULL;
 
-    /// ADD FONT
+    /// SET FONT
 
     ALLEGRO_FONT *font = NULL;
    /// ----------------------------------------------------------------------------------------------------------------------------------------
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-    /// CREATE AND CHECK FONT ADDON
+    /// CREATE AND CHECK FONT
 
    font = al_create_builtin_font();
 
@@ -102,7 +106,7 @@ int main(int argc, char **argv)
 
    // al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
 
-    /// SET ANTIANALISING
+    /// SET ANTIANALISING FOR PRIMITIVES
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
     al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
@@ -324,13 +328,13 @@ int main(int argc, char **argv)
 
 
 
-    /// DEFINING POSITION OF PRIMITIVE
+    /// DEFINING POSITION OF THE PRIMITIVE
     float x,y;
      x = 100;
      y = 100;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// DEFINING KEY STATE OF BEING PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
+    /// DEFINING KEY STATE OF WHILE NOT PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
     bool done = false;
 
     #define KEY_SEEN     1
@@ -353,14 +357,16 @@ int main(int argc, char **argv)
 
     al_wait_for_event(queue, &event);
 
-        switch(event.type)
-{
+
+   /// NEW MOVEMENT CODE FOR PRIMITIVES
+    switch(event.type)
+    {
 
 
 
     case ALLEGRO_EVENT_TIMER:
       if(key[ALLEGRO_KEY_UP])
-            y--;
+          y--;
       if(key[ALLEGRO_KEY_DOWN])
           y++;
       if(key[ALLEGRO_KEY_LEFT])
@@ -375,19 +381,19 @@ int main(int argc, char **argv)
       for( i = 0; i < ALLEGRO_KEY_MAX; i++)
                   key[i] &= ~KEY_SEEN;
 
-                redraw = true;
-                break;
+       redraw = true;
+       break;
 
-            case ALLEGRO_EVENT_KEY_DOWN:
-                key[event.keyboard.keycode] = KEY_SEEN | KEY_DOWN;
-                break;
-            case ALLEGRO_EVENT_KEY_UP:
-                key[event.keyboard.keycode] &= ~KEY_DOWN;
-                break;
+        case ALLEGRO_EVENT_KEY_DOWN:
+            key[event.keyboard.keycode] = KEY_SEEN | KEY_DOWN;
+            break;
+        case ALLEGRO_EVENT_KEY_UP:
+            key[event.keyboard.keycode] &= ~KEY_DOWN;
+            break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
-                done = true;
-                break;
+        case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            done = true;
+            break;
 }
 
 
@@ -395,7 +401,7 @@ int main(int argc, char **argv)
 
     if(done)
         break;
-
+/// ----------------------------------------------------------------------------------------------------------------------------------------
 
       //  if(ev.type==ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 
@@ -609,14 +615,14 @@ int main(int argc, char **argv)
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-            /// VERTEX GRAPHIC
+           // /// VERTEX GRAPHIC
             //ALLEGRO_VERTEX v[] = {
              //   { .x = 210, .y = 320, .z = 0, .color = al_map_rgb_f(1, 0, 0) },
               //  { .x = 330, .y = 320, .z = 0, .color = al_map_rgb_f(0, 1, 0) },
                // { .x = 210, .y = 420, .z = 0, .color = al_map_rgb_f(0, 0, 1) },
                 //{ .x = 330, .y = 420, .z = 0, .color = al_map_rgb_f(1, 1, 0) },
             //};
-            /// ----------------------------------------------------------------------------------------------------------------------------------------
+           // /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 //            al_draw_bitmap(background, 0, 0, 0);
 
@@ -626,9 +632,9 @@ int main(int argc, char **argv)
 
           //  al_draw_bitmap(bola, bola_pos_x, bola_pos_y, 0);
 
-            /// VERTEX CALL
+            ///// VERTEX CALL
             //al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
-            /// ----------------------------------------------------------------------------------------------------------------------------------------
+          //  /// ----------------------------------------------------------------------------------------------------------------------------------------
             al_flip_display();
 
             redraw = false;
