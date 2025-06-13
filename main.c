@@ -610,7 +610,7 @@ int main(int argc, char **argv)
             al_clear_to_color(al_map_rgb(0,0,0));
 
             /// DRAW COMMANDS
-            al_draw_filled_rectangle(x, y, x + 10, y + 10, al_map_rgb_f(0, 1, 0));
+            al_draw_filled_triangle(x - 75, y + 250, x - 25 , y + 275, x - 75, y + 300, al_map_rgb_f(0, 1, 0));
             al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f  Y: %.1f ", x, y);
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
