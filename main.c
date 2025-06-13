@@ -366,13 +366,13 @@ int main(int argc, char **argv)
 
     case ALLEGRO_EVENT_TIMER:
       if(key[ALLEGRO_KEY_UP])
-          y--;
+          y-= 5;
       if(key[ALLEGRO_KEY_DOWN])
-          y++;
+          y+= 5;
       if(key[ALLEGRO_KEY_LEFT])
-          x--;
+          x-= 5;
       if(key[ALLEGRO_KEY_RIGHT])
-          x++;
+          x+= 5;
 
       if(key[ALLEGRO_KEY_ESCAPE])
           done = true;
