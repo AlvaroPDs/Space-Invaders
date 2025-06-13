@@ -43,11 +43,11 @@ int main(int argc, char **argv)
 
     ALLEGRO_DISPLAY *display = NULL;
 
-    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+    ALLEGRO_EVENT_QUEUE *queue = NULL;
 
     ALLEGRO_TIMER *timer = NULL;
 
-    /// ADD FONT ADDON LIB
+    /// ADD FONT
 
     ALLEGRO_FONT *font = NULL;
    /// ----------------------------------------------------------------------------------------------------------------------------------------
@@ -276,13 +276,13 @@ int main(int argc, char **argv)
 
 
 
-    al_set_target_bitmap(al_get_backbuffer(display));
+    //al_set_target_bitmap(al_get_backbuffer(display));
 
 
 
-    event_queue = al_create_event_queue();
+    queue = al_create_event_queue();
 
-    if(!event_queue)
+    if(!queue)
 
     {
 
@@ -304,13 +304,13 @@ int main(int argc, char **argv)
 
     }
 
-    al_register_event_source(event_queue, al_get_display_event_source(display));
+    al_register_event_source(queue, al_get_display_event_source(display));
 
-    al_register_event_source(event_queue, al_get_timer_event_source(timer));
+    al_register_event_source(queue, al_get_timer_event_source(timer));
 
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    al_register_event_source(queue, al_get_keyboard_event_source());
 
-    al_register_event_source(event_queue, al_get_mouse_event_source());
+    al_register_event_source(queue, al_get_mouse_event_source());
 
 
 
@@ -320,75 +320,71 @@ int main(int argc, char **argv)
 
     al_flip_display();
 
-
-
-
     /// RENAMED "ALLEGRO_EVENT ev;" to "ALLEGRO_EVENT event; "
-    ALLEGRO_EVENT event;
+        ALLEGRO_EVENT event;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// DEFINING A UPDATED LOCATION OF X,Y DRAW OBJECTS
-    float x, y;
-    x = 100;
-    y = 100;
+
+
+
+    /// DEFINING POSITION OF PRIMITIVE
+    int x = 100, y = 100;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     /// DEFINING KEY STATE OF BEING PRESSED AND NUMBERS OF KEYCODES SET IN THE ARRAY "key"
     bool done = false;
 
-    #define KEY_SEEN     1
-    #define KEY_DOWN     2
+   // #define KEY_SEEN     1
+   // #define KEY_DOWN     2
 
-    unsigned char key[ALLEGRO_KEY_MAX];
-    memset(key, 0, sizeof(key));
+   // unsigned char key[ALLEGRO_KEY_MAX];
+   // memset(key, 0, sizeof(key));
    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     al_start_timer(timer);
 
-    while(1)
+    while(!done)
 
     {
 
-        al_wait_for_event(event_queue, &event);
 
-switch(event.type)
+    if(al_wait_for_event(queue, &event)) { 
+            
+    if(event.type==ALLEGRO_KEY_DOWN) {
+        switch(event.keyboard.keycode)
 {
-        redraw = true;
-        break;
-
-    case ALLEGRO_EVENT_TIMER:
-        if(event.keyboard.keycode == ALLEGRO_KEY_UP)
-            y--;
-        if(event.keyboard.keycode == ALLEGRO_KEY_DOWN)
-            y++;
-        if(event.keyboard.keycode == ALLEGRO_KEY_LEFT)
-            x--;
-        if(event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
-            x++;
-
-        if(event.keyboard.keycode != ALLEGRO_KEY_ESCAPE)
-            break;
-
-        int i;
-        for( i = 0; i < ALLEGRO_KEY_MAX; i++)
-                    key[i] &= ~KEY_SEEN;
-
-                redraw = true;
-                break;
-
             case ALLEGRO_EVENT_KEY_DOWN:
-                key[event.keyboard.keycode] = KEY_SEEN | KEY_DOWN;
+                y++;
                 break;
             case ALLEGRO_EVENT_KEY_UP:
-                key[event.keyboard.keycode] &= ~KEY_DOWN;
+                y--;
                 break;
 
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
-                done = true;
-                break;
+
+//    case ALLEGRO_EVENT_TIMER:
+//        if(event.keyboard.keycode == ALLEGRO_KEY_UP)
+//            y--;
+//        if(event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+//            y++;
+//        if(event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+//            x--;
+//        if(event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+//            x++;
+
+//        if(event.keyboard.keycode != ALLEGRO_KEY_ESCAPE)
+//            break;
+
+//        int i;
+//        for( i = 0; i < ALLEGRO_KEY_MAX; i++)
+//                    key[i] &= ~KEY_SEEN;
+
+//                redraw = true;
+//                break;
+
+
 }
 
-
+}
 
      if(done)
             break;
@@ -585,21 +581,22 @@ switch(event.type)
         //    break;
 
        // }
+        }
 
 
 
-        if(redraw && al_is_event_queue_empty(event_queue))
+
+        if(redraw && al_is_event_queue_empty(queue))
 
         {
 
-            redraw = false;
 
 
 
             al_clear_to_color(al_map_rgb(0,0,0));
 
             /// DRAW COMMANDS
-            al_draw_filled_triangle(35, 350, 85, 375, 35, 400, al_map_rgb_f(0, 1, 0));
+            al_draw_filled_rectangle(x, y, x + 50, y + 25, al_map_rgb_f(0, 1, 0));
             al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f Y: %.1f", x, y);
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
@@ -626,6 +623,10 @@ switch(event.type)
             /// ----------------------------------------------------------------------------------------------------------------------------------------
             al_flip_display();
 
+            redraw = false;
+
+        } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            done = true;
         }
 
     }
@@ -644,7 +645,7 @@ switch(event.type)
 
     al_destroy_display(display);
 
-    al_destroy_event_queue(event_queue);
+    al_destroy_event_queue(queue);
 
 
 
