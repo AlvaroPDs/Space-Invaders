@@ -36,6 +36,8 @@
 //const int REBATEDOR_ALTURA = 506;
 
 /// NAMING AND SETTING A VALUE FOR EACH OBJECT
+#define SCREEN_W  800
+#define SCREEN_H  680
 #define SHIP_W  40
 #define SHIP_H 20
 #define MAX_PROJECTILES 1
@@ -122,8 +124,8 @@ int main(int argc, char **argv)
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     /// POSITION OF PLAYER'S SHIP
-    float ship_x = 640/2 - SHIP_W/2;
-    float ship_y = 480/2 - SHIP_H - 10;
+    float ship_x = SCREEN_W/2 - SHIP_W/2;
+    float ship_y = SCREEN_H/2 - SHIP_H - 10;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     /// SET PROJECTILES
@@ -138,7 +140,7 @@ int main(int argc, char **argv)
     al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    display = al_create_display(640, 480);
+    display = al_create_display(SCREEN_W, SCREEN_H);
 
     if(!display)
 
@@ -406,11 +408,11 @@ int main(int argc, char **argv)
     case ALLEGRO_EVENT_TIMER:
       if(key[ALLEGRO_KEY_UP] && ship_y> 0)
           ship_y-= 8;
-      if(key[ALLEGRO_KEY_DOWN] && ship_y < 640 - SHIP_H)
+      if(key[ALLEGRO_KEY_DOWN] && ship_y < SCREEN_W - SHIP_H)
           ship_y+= 8;
       if(key[ALLEGRO_KEY_LEFT] && ship_x > 0)
           ship_x-= 8;
-      if(key[ALLEGRO_KEY_RIGHT] && ship_x < 480 - SHIP_W)
+      if(key[ALLEGRO_KEY_RIGHT] && ship_x < SCREEN_H - SHIP_W)
           ship_x+= 8;
 
       /// ----------------------------------------------------------------------------------------------------------------------------------------
