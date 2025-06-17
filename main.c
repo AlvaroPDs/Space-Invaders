@@ -8,7 +8,17 @@
 
 /// Modifications added to the document are highlighted by line document comments
 /// Parts of the original design were highlighted by normal line comments
-/// Prototype code is highlighted with a line comment and #
+/// Unused code is highlighted with a line comment and #
+
+
+/// ADVISE!!
+
+/// If you get an error on codeblocks like: 'for' loop initial declarations are only allowed in C99 or C11 mode
+/// 1.Go under settings
+/// 2.Compiler settings tab
+/// 3.Mark the checkbox of: "Have gcc follow the 1999 ISO C language standard [-std=c99]"
+
+/// ----------------------------------------------------------------------------------------------------------------------------------------
 
 #include <stdio.h>
 
@@ -43,19 +53,16 @@
 
 /// DEFINE PLAYER SHIP VALUES
 #define SHIP_W  40
-#define SHIP_H 35
+#define SHIP_H 36
 #define SHIP_EDGE_X 12
 #define SHIP_EDGE_Y 13
 #define SHIP_HEALTH 3
 /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 /// DEFINE ENEMY SHIP VALUES
-#define ENEMY_W 40
-#define ENEMY_H 35
-#define ENEMY_EDGE_X 12
-#define ENEMY_EDGE_Y 13
-#define ENEMY_HEALTH 3
-/// ----------------------------------------------------------------------------------------------------------------------------------------
+ #define ENEMY_W 40
+ #define ENEMY_H 35
+ /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 /// DEFINE MAX NUMBER OF ENEMIES
 #define MAX_ENEMIES 1
@@ -65,6 +72,7 @@
 typedef struct  {
  float x,y;
  bool active;
+ int health;
 }Enemy;
 /// ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -145,51 +153,51 @@ int main(int argc, char **argv)
     bool redraw = true;
 
     /// BOOLEAN OF RUNNING SETUP
-    
+
     bool done = false;
-    
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     /// BOOLEAN SET OF ALLEGRO KEYCODES
-    
+
     bool key[ALLEGRO_KEY_MAX] = {false};
-    
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// DEFINE POSITION OF PLAYER'S SHIP
-    
+    /// DEFINE POSITION VALUE OF PLAYER'S SHIP
+
     float ship_x = SCREEN_W/2 - SHIP_W/2;
     float ship_y = SCREEN_H/2 - SHIP_H + 100;
-    
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    ///  DEFINE POSITION OF ENEMY SHIP
-    
+    ///  DEFINE POSITION VALUE OF ENEMY SHIP
+
     float enemy_ship_x = SCREEN_W/2 - ENEMY_W/2;
     float enemy_ship_y = SCREEN_W/2 - ENEMY_H  - 300;
-    
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
-    
-    /// SET ENEMY NUMBER 
-    
+
+    /// SET ENEMY NUMBER
+
     Enemy enemies[MAX_ENEMIES];
-    
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     /// SET PROJECTILES NUMBER
-   
+
     Projectile projectiles[MAX_PROJECTILES];
-   
+
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
    // al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
 
     /// SET ANTIANALISING FOR PRIMITIVES
-   
+
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
     al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-   
+
    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     display = al_create_display(SCREEN_W, SCREEN_H);
@@ -408,13 +416,21 @@ int main(int argc, char **argv)
 
 
 
- 
-   /// FOR LOOP TO PROJECTILES SET AS 0
-   int i;
-   for ( i = 0; i < MAX_PROJECTILES; i++) {
+
+   /// FOR LOOP TO SET PŔOJECTILES FALSE
+   for ( int i = 0; i < MAX_PROJECTILES; i++) {
         projectiles[i].active = false;
     }
    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// FOR LOOP TO SET ENEMIES FALSE
+   for ( int i = 0; i < MAX_ENEMIES; i++) {
+        enemies[i].active = false;
+    }
+   /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
     al_start_timer(timer);
 
     while(1)
@@ -457,9 +473,8 @@ int main(int argc, char **argv)
       /// ----------------------------------------------------------------------------------------------------------------------------------------
 
       /// FIRE PROJECTILE
-      if(key[ALLEGRO_KEY_SPACE]) {
-      int i;
-      for( i = 0; i < MAX_PROJECTILES; i++) {
+      if(key[ALLEGRO_KEY_SPACE]) {   /// makes a condition to only activate projectiles if a key is pressed
+      for( int i = 0; i < MAX_PROJECTILES; i++) {
         if (!projectiles[i].active) {
                         projectiles[i].x = ship_x + SHIP_W / 2;
                         projectiles[i].y = ship_y;
@@ -473,18 +488,46 @@ int main(int argc, char **argv)
 
       /// ----------------------------------------------------------------------------------------------------------------------------------------
 
+      /// SPAWN ENEMIES
+
+       for( int i = 0; i < MAX_ENEMIES; i++) {
+        if (!enemies[i].active) {
+                        enemies[i].x = enemy_ship_x;
+                        enemies[i].y = enemy_ship_y;
+                        enemies[i].active = true;
+                        break;
+        }
+      }
+
       /// MOVE PROJECTILES UP AND DELETE
-      for (i = 0; i < MAX_PROJECTILES; i++) {
+      for (int i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].active) {
-           projectiles[i].y -= 20; // move up
+           projectiles[i].y -= 20; /// move up at some velocity y  -= n when spawn on screen
         if (projectiles[i].y < 0) {
             projectiles[i].active = false;
         }
     }
 }
+
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+    /// MOVE ENEMIES DOWN AND DELETE
+      for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].active) {
+           enemies[i].y += 1; /// move down at some velocity y += n when spawn on screen
+        if (enemies[i].y < 0) {
+            enemies[i].active = false;
+        }
+    }
+}
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+    /// IF KEY IS PRESSED GAME ENDS
+
       if(key[ALLEGRO_KEY_ESCAPE])
           done = true;
-
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
        redraw = true;
        break;
@@ -706,6 +749,7 @@ int main(int argc, char **argv)
 
             al_clear_to_color(al_map_rgb(0,0,0));
 
+
             /// DRAW PLAYER'S SHIP
             al_draw_filled_triangle(
             ship_x, ship_y + SHIP_H,                         /// left base
@@ -713,14 +757,24 @@ int main(int argc, char **argv)
             ship_x + SHIP_W / 2, ship_y,                     /// top (tip of triangle)
             al_map_rgb(0, 255, 0));
 
-           
+
+
+
             /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-            /// DRAW ENEMY'S SHIP
-            al_draw_filled_triangle(enemy_ship_x, enemy_ship_y + ENEMY_H,
-                                     enemy_ship_x + ENEMY_W,
-                                     enemy_ship_y + ENEMY_H,
-                                     enemy_ship_x + ENEMY_W/2, enemy_ship_y + 70, al_map_rgb(0,255,0));
+            /// DRAW ENEMIES
+           for (int i = 0; i < MAX_ENEMIES; i++) {
+                if(enemies[i].active){
+                  al_draw_filled_triangle(enemies[i].x, enemies[i].y + 30,
+                                          enemies[i].x - 20, enemies[i].y,
+                                          enemies[i].x + 20, enemies[i].y,
+                                           al_map_rgb(255,0,0));
+              }
+           }
+           // al_draw_filled_triangle(enemy_ship_x, enemy_ship_y + ENEMY_H,
+          //                           enemy_ship_x + ENEMY_W,
+           //                          enemy_ship_y + ENEMY_H,
+            //                         enemy_ship_x + ENEMY_W/2, enemy_ship_y + 70, al_map_rgb(0,255,0));
 
             /// ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -729,8 +783,7 @@ int main(int argc, char **argv)
 
 
             /// Draw projectiles
-            int i;
-            for ( i = 0; i < MAX_PROJECTILES; i++) {
+            for ( int i = 0; i < MAX_PROJECTILES; i++) {
                 if (projectiles[i].active) {
                     al_draw_filled_rectangle(projectiles[i].x - 2, projectiles[i].y - 10,
                                              projectiles[i].x + 2, projectiles[i].y,
@@ -738,7 +791,7 @@ int main(int argc, char **argv)
                 }
             }
             ///----------------------------------------------------------------------------------------------------------------------------------------
-          
+
 //            al_draw_bitmap(background, 0, 0, 0);
 
 //            al_draw_bitmap(rebatedorEsquerda,rebatedorEsquerda_pos_x, rebatedorEsquerda_pos_y, 0);
@@ -747,7 +800,7 @@ int main(int argc, char **argv)
 
           //  al_draw_bitmap(bola, bola_pos_x, bola_pos_y, 0);
 
-           
+
             al_flip_display();
 
             redraw = false;
@@ -761,14 +814,13 @@ int main(int argc, char **argv)
     printf("POSICAO X DA NAVE: %.1f\n",ship_x);
     printf("POSICAO Y DA NAVE: %.1f\n",ship_y);
 
-    printf("POSICAO X DO INIMIGO: %.1f\n",enemy_ship_x);
-    printf("POSICAO Y DO INIMIGO: %.1f\n",enemy_ship_y);
+
 
 
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    /// PROTOTYPES
-    
+    /// UNUSED CODE
+
       // # /// DEFINING POSITION OF THE PRIMITIVE
    // #  float x,y;
    // #  x = 100;
@@ -783,12 +835,12 @@ int main(int argc, char **argv)
   // #  unsigned char key[ALLEGRO_KEY_MAX];
   // #  memset(key, 0, sizeof(key));
  //  /// ----------------------------------------------------------------------------------------------------------------------------------------
-    
+
          // # int i;
      // # for( i = 0; i < ALLEGRO_KEY_MAX; i++)
       //            key[i] &= ~KEY_SEEN;
 
-    
+
      // # /// VERTEX GRAPHIC
             //ALLEGRO_VERTEX v[] = {
              //   { .x = 210, .y = 320, .z = 0, .color = al_map_rgb_f(1, 0, 0) },
@@ -798,13 +850,16 @@ int main(int argc, char **argv)
             //};
            // /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-    
+
      // # al_draw_filled_circle(35,250,5, al_map_rgb_f(0,1,0));
             // # al_draw_textf(font, al_map_rgb(255, 255, 255), 0, 0, 0, "X: %.1f  Y: %.1f ", x, y);
-            
+
     // #  ///  VERTEX CALL
             //al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
           //  /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+          //   # printf("POSICAO X DO INIMIGO: %.1f\n",enemy_ship_x);
+//  #  printf("POSICAO Y DO INIMIGO: %.1f\n",enemy_ship_y);
 
     /// ----------------------------------------------------------------------------------------------------------------------------------------
 
