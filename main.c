@@ -63,6 +63,7 @@ typedef struct  {
  float x,y;
  bool active;
  int health;
+ float border_x,border_y;
 }Enemy;
 /// ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -219,9 +220,12 @@ int main(int argc, char **argv)
     /// SET ENEMY NUMBER
     Enemy enemies[MAX_ENEMIES] = {{0}};
     /// ----------------------------------------------------------------------------------------------------------------------------------------
+
     /// SET PROJECTILES NUMBER
     Projectile projectiles[MAX_PROJECTILES] = {{0}};
     /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+
     queue = al_create_event_queue();
 
     if(!queue)
@@ -238,6 +242,7 @@ int main(int argc, char **argv)
 
     /// INTEGERS/COSTANTS USED GLOBALLY
     int i;
+    int j;
     const int spawn_delay = 90; /// 90 equals 3 seconds for 30 fps
     int spawn_counter = spawn_delay; /// Makes the first spawn happen at the first frame
     /// ----------------------------------------------------------------------------------------------------------------------------------------
@@ -296,14 +301,19 @@ int main(int argc, char **argv)
       }
       }
       /// ----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
       /// SPAWN ENEMIES WITH CONDITION BASED ON TIMER FOR EACH ENEMY
     if (event.type == ALLEGRO_EVENT_TIMER) {
      spawn_counter++;
      if (spawn_counter >= spawn_delay) {
        for( i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
-                        enemies[i].x = enemy_ship_x;
-                        enemies[i].y = enemy_ship_y;
+                       enemies[i].x = enemy_ship_x + ENEMY_W / 2.0;
+                       enemies[i].y = enemy_ship_y + ENEMY_H / 2.0;
+                       enemies[i].border_x = ENEMY_W / 2.0;
+                       enemies[i].border_y = ENEMY_H / 2.0;
                         enemies[i].active = true;
                         break;
         }
@@ -322,29 +332,42 @@ int main(int argc, char **argv)
 }
 
     /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// MOVE ENEMIES DOWN AND DELETE
+    /// MOVE ENEMIES DOWN AND DELETE AT POSITION Y = 0
       for ( i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].active) {
-           enemies[i].y += 1; /// move down at some velocity y += n when spawn on screen
+            enemies[i].x += 1;
+            enemies[i].y += 1;
+         if (enemies[i].x < 100 || enemies[i].x > SCREEN_W - 100) {
+            enemies[i].x *= -1; /// reverse horizontal direction
+        }
         if (enemies[i].y < 0) {
             enemies[i].active = false;
         }
     }
 }
     /// ----------------------------------------------------------------------------------------------------------------------------------------
+     enemies[i].border_x = ENEMY_W / 2.0;
+    enemies[i].border_y = ENEMY_H / 2.0;
    /// COLISION ENEMIS WITH PROJECTILES
-      
-      for(i = 0; i < a_size; i++;){
+
+      for(i = 0; i < MAX_PROJECTILES; i++){
         if(projectiles[i].active){
-            for( j = 0; j < b_size; j++)
-            if(projectiles[i].x > (enemies[j].border_x) &&
-               (projectiles[i].x  < (enemies[j].x +))){
-                
+            for( j = 0; j < MAX_ENEMIES; j++)
+            if(enemies[j].active){
+                 if(projectiles[i].x > (enemies[j].x - enemies[j].border_x) &&
+               (projectiles[i].x  < (enemies[j].x + enemies[j].border_x ) &&
+                projectiles[i].y > (enemies[j].y - enemies[j].border_y) &&
+                projectiles[i].y < (enemies[j].y + enemies[j].border_y)))
+                {
+             projectiles[i].active = false;
+             enemies[j].active = false;
             }
+            }
+
         }
       }
-      
-      
+
+
       /// ----------------------------------------------------------------------------------------------------------------------------------------
     /// IF A KEY IS PRESSED GAME ENDS
       if(key[ALLEGRO_KEY_ESCAPE])
