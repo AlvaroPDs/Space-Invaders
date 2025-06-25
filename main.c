@@ -55,7 +55,7 @@
  /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 /// DEFINE MAX NUMBER OF ENEMIES
-#define MAX_ENEMIES 1
+#define MAX_ENEMIES 10
 /// ----------------------------------------------------------------------------------------------------------------------------------------
 
 /// TYPEDEF STRUCTURE OF ENEMIES
@@ -79,7 +79,7 @@ typedef struct  {
 int main(int argc, char **argv)
 {
     ALLEGRO_DISPLAY *display = NULL;
-    /// RENAMED "event_queue" to "queue" 
+    /// RENAMED "event_queue" to "queue"
     ALLEGRO_EVENT_QUEUE *queue = NULL;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
     ALLEGRO_TIMER *timer = NULL;
@@ -113,26 +113,13 @@ int main(int argc, char **argv)
 
     }
     bool redraw = true;
-    /// BOOLEAN OF RUNNING SETUP
+    /// BOOLEAN OF RUNNING SETUP(APART FROM "RETURN -1")
     bool done = false;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
     /// BOOLEAN SET OF ALLEGRO KEYCODES
     bool key[ALLEGRO_KEY_MAX] = {false};
     /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// DEFINE POSITION VALUE OF PLAYER'S SHIP
-    float ship_x = SCREEN_W/2 - SHIP_W/2;
-    float ship_y = SCREEN_H/2 - SHIP_H + 100;
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
-    ///  DEFINE POSITION VALUE OF ENEMY SHIP
-    float enemy_ship_x = SCREEN_W/2 - ENEMY_W/2;
-    float enemy_ship_y = SCREEN_W/2 - ENEMY_H  - 300;
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// SET ENEMY NUMBER
-    Enemy enemies[MAX_ENEMIES];
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// SET PROJECTILES NUMBER
-    Projectile projectiles[MAX_PROJECTILES];
-    /// ----------------------------------------------------------------------------------------------------------------------------------------
+
    // al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
     /// SET ANTIANALISING FOR PRIMITIVES
 
@@ -220,16 +207,26 @@ int main(int argc, char **argv)
         //return -1;
    // }
     //al_set_target_bitmap(al_get_backbuffer(display));
+
+    /// DEFINE POSITION VALUE OF PLAYER'S SHIP
+    float ship_x = SCREEN_W/2 - SHIP_W/2;
+    float ship_y = SCREEN_H/2 - SHIP_H + 100;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+    ///  DEFINE POSITION VALUE OF ENEMY SHIP
+    float enemy_ship_x = SCREEN_W/2 - ENEMY_W/2;
+    float enemy_ship_y = SCREEN_W/2 - ENEMY_H  - 300;
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+    /// SET ENEMY NUMBER
+    Enemy enemies[MAX_ENEMIES] = {{0}};
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
+    /// SET PROJECTILES NUMBER
+    Projectile projectiles[MAX_PROJECTILES] = {{0}};
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
     queue = al_create_event_queue();
+
     if(!queue)
     {
         fprintf(stderr, "failed to create event_queue!\n");
-//        al_destroy_bitmap(bola);
-//        al_destroy_bitmap(rebatedorEsquerda);
-//        al_destroy_bitmap(rebatedorDireita);
-//        al_destroy_bitmap(background);
-        al_destroy_display(display);
-        al_destroy_timer(timer);
         return -1;
     }
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -238,9 +235,12 @@ int main(int argc, char **argv)
     al_register_event_source(queue, al_get_mouse_event_source());
     al_clear_to_color(al_map_rgb(0,0,0));
     al_flip_display();
-  
 
-
+    /// INTEGERS/COSTANTS USED GLOBALLY
+    int i;
+    const int spawn_delay = 90; /// 90 equals 3 seconds for 30 fps
+    int spawn_counter = spawn_delay; /// Makes the first spawn happen at the first frame
+    /// ----------------------------------------------------------------------------------------------------------------------------------------
 
     al_start_timer(timer);
 
@@ -258,7 +258,6 @@ int main(int argc, char **argv)
    /// NEW MOVEMENT CODE USED FOR PRIMITIVES
     switch(event.type)
     {
-     int i;
 
     case ALLEGRO_EVENT_KEY_DOWN:
             key[event.keyboard.keycode] = true;
@@ -284,16 +283,7 @@ int main(int argc, char **argv)
 
       /// ----------------------------------------------------------------------------------------------------------------------------------------
 
-      /// FOR LOOP TO SET PŔOJECTILES FALSE
-   for ( i = 0; i < MAX_PROJECTILES; i++) {
-        projectiles[i].active = false;
-    }
-   /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// FOR LOOP TO SET ENEMIES FALSE
-   for ( i = 0; i < MAX_ENEMIES; i++) {
-        enemies[i].active = false;
-    }
-   /// ----------------------------------------------------------------------------------------------------------------------------------------
+
       /// FIRE PROJECTILE
       if(key[ALLEGRO_KEY_SPACE]) {   /// makes a condition to only activate projectiles if a key is pressed
       for(  i = 0; i < MAX_PROJECTILES; i++) {
@@ -306,7 +296,10 @@ int main(int argc, char **argv)
       }
       }
       /// ----------------------------------------------------------------------------------------------------------------------------------------
-      /// SPAWN ENEMIES
+      /// SPAWN ENEMIES WITH CONDITION BASED ON TIMER FOR EACH ENEMY
+    if (event.type == ALLEGRO_EVENT_TIMER) {
+     spawn_counter++;
+     if (spawn_counter >= spawn_delay) {
        for( i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
                         enemies[i].x = enemy_ship_x;
@@ -315,7 +308,9 @@ int main(int argc, char **argv)
                         break;
         }
       }
-
+       spawn_counter = 0; /// Set counter to 0
+    }
+      }
       /// MOVE PROJECTILES UP AND DELETE
       for ( i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].active) {
@@ -338,7 +333,7 @@ int main(int argc, char **argv)
     }
 }
     /// ----------------------------------------------------------------------------------------------------------------------------------------
-    /// IF KEY IS PRESSED GAME ENDS
+    /// IF A KEY IS PRESSED GAME ENDS
       if(key[ALLEGRO_KEY_ESCAPE])
           done = true;
     /// ----------------------------------------------------------------------------------------------------------------------------------------
@@ -436,7 +431,6 @@ int main(int argc, char **argv)
         //    break;
         if(redraw && al_is_event_queue_empty(queue))
         {
-            int i;
             al_clear_to_color(al_map_rgb(0,0,0));
             /// DRAW PLAYER'S SHIP
             al_draw_filled_triangle(
@@ -522,5 +516,3 @@ int main(int argc, char **argv)
     al_destroy_event_queue(queue);
     return 0;
 }
-
-
