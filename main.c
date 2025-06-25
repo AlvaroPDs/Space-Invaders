@@ -322,7 +322,6 @@ int main(int argc, char **argv)
 }
 
     /// ----------------------------------------------------------------------------------------------------------------------------------------
-
     /// MOVE ENEMIES DOWN AND DELETE
       for ( i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].active) {
@@ -333,6 +332,20 @@ int main(int argc, char **argv)
     }
 }
     /// ----------------------------------------------------------------------------------------------------------------------------------------
+   /// COLISION ENEMIS WITH PROJECTILES
+      
+      for(i = 0; i < a_size; i++;){
+        if(projectiles[i].active){
+            for( j = 0; j < b_size; j++)
+            if(projectiles[i].x > (enemies[j].border_x) &&
+               (projectiles[i].x  < (enemies[j].x +))){
+                
+            }
+        }
+      }
+      
+      
+      /// ----------------------------------------------------------------------------------------------------------------------------------------
     /// IF A KEY IS PRESSED GAME ENDS
       if(key[ALLEGRO_KEY_ESCAPE])
           done = true;
